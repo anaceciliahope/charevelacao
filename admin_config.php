@@ -17,9 +17,12 @@ define('ADMIN_PASSWORD', 'chadebebe2026');
 define('CONFIG_EMAILS', ['anaceciliahope@gmail.com']);
 
 /* ===== Envio de e-mails via Resend (https://resend.com) ===== */
-// Chave de API do Resend (crie em resend.com -> API Keys)
-define('RESEND_API_KEY', '');
+// A API Key NÃO fica neste arquivo. Ela é lida pela função
+// obter_resend_api_key() (em resend.php), que usa nesta ordem:
+//   1. Variável de ambiente RESEND_API_KEY (getenv)
+//   2. Arquivo .env da raiz do projeto (lido manualmente, sem Composer/dotenv)
+// NUNCA coloque a chave diretamente em um arquivo PHP.
 
 // Remetente (DOMÍNIO deve estar verificado no Resend).
-// Para testes sem domínio próprio, use: Onboarding <onboarding@resend.dev>
-define('CONFIG_REMETENTE', 'Onboarding <onboarding@resend.dev>');
+// Para testes sem domínio próprio, use: onboarding@resend.dev
+define('CONFIG_REMETENTE', 'onboarding@resend.dev');

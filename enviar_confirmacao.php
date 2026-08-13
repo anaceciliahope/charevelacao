@@ -4,21 +4,19 @@
  * salva no banco e envia um e-mail pelo Resend com os dados:
  * nome, resposta, acompanhantes, fralda sorteada e palpite.
  *
- * Configuração em admin_config.php:
- *   RESEND_API_KEY  -> sua chave de API do Resend
- *   CONFIG_REMETENTE-> remetente (domínio verificado no Resend)
- *   CONFIG_EMAILS   -> e-mail(s) da dona da festa
+ * A API Key do Resend é lida pela função obter_resend_api_key() (resend.php),
+ * que usa a variável de ambiente RESEND_API_KEY (getenv) e, como fallback,
+ * o arquivo .env. A chave NUNCA fica neste arquivo nem em admin_config.php.
  */
 
 header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/resend.php';
 criar_tabelas();
 
 /* ============ CONFIGURAÇÃO ============ */
 $destinatarios = defined('CONFIG_EMAILS') ? CONFIG_EMAILS : ['seuemail@exemplo.com'];
-$remetente     = defined('CONFIG_REMETENTE') ? CONFIG_REMETENTE : 'Onboarding <onboarding@resend.dev>';
-$apiKey        = defined('RESEND_API_KEY') ? RESEND_API_KEY : '';
 /* ====================================== */
 
 $dados = json_decode(file_get_contents('php://input'), true);
@@ -69,63 +67,14 @@ if ($palpite !== '') {
 }
 $corpo .= "\nData: " . $dataHora . "\n";
 
-/**
- * Envia e-mail pela API do Resend.
- * Retorna [bool, string] com status e mensagem.
- */
-function enviar_email_resend(string $apiKey, string $remetente, string $destino, string $assunto, string $corpo): array
-{
-    if ($apiKey === '' || $apiKey === 're_SuaChaveAqui') {
-        return [false, 'Configure a RESEND_API_KEY em admin_config.php.'];
-    }
-
-    $payload = json_encode([
-        'from'    => $remetente,
-        'to'      => [$destino],
-        'subject' => $assunto,
-        'text'    => $corpo
-    ], JSON_UNESCAPED_UNICODE);
-
-    $ch = curl_init('https://api.resend.com/emails');
-    $opcoes = [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST           => true,
-        CURLOPT_POSTFIELDS     => $payload,
-        CURLOPT_HTTPHEADER     => [
-            'Authorization: Bearer ' . $apiKey,
-            'Content-Type: application/json'
-        ],
-        CURLOPT_TIMEOUT        => 20,
-        // Ambiente local (XAMPP) costuma ter proxy que intercepta o TLS;
-        // desativa a checagem do certificado para garantir o envio.
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => 0,
-    ];
-
-    curl_setopt_array($ch, $opcoes);
-
-    $resposta = curl_exec($ch);
-    $status   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $erroCurl = curl_error($ch);
-    curl_close($ch);
-
-    if ($status >= 200 && $status < 300) {
-        return [true, 'E-mail enviado com sucesso.'];
-    }
-
-    $erro = json_decode($resposta, true);
-    $msg = $erro['message'] ?? ($resposta !== false ? $resposta : $erroCurl);
-    return [false, 'Falha no envio pelo Resend (' . $status . '): ' . $msg];
-}
-
 $enviado = false;
 $msgEnvio = '';
 foreach ($destinatarios as $destino) {
-    [$ok, $msg] = enviar_email_resend($apiKey, $remetente, $destino, $assunto, $corpo);
-    if ($ok) {
+    $res = resend_enviar($destino, $assunto, $corpo);
+    if ($res['ok']) {
         $enviado = true;
     } else {
-        $msgEnvio = $msg;
+        $msgEnvio = $res['msg'];
     }
 }
 

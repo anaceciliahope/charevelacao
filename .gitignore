@@ -1,1 +1,3 @@
-admin_config.php        
+admin_config.php  
+.env
+vendor/      
