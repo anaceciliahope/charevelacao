@@ -44,6 +44,31 @@
   $dataFormatada = formatar_data_pt($dataEvento);
   $dataCompleta  = formatar_data_completa_pt($dataEvento);
   $enderecoUrl   = urlencode($endereco);
+  $traje         = $config['traje'];
+
+  // Paleta de cores de cada opção de traje
+  $paletasTraje = [
+    'Tons neutros: bege, creme, taupe, cinza, caramelo, nude' => [
+      ['Bege', '#D2B48C'], ['Creme', '#F5F0E1'],
+      ['Cinza', '#9CA3AF'], ['Caramelo', '#A67C52'], ['Nude', '#E8C7B7'],
+    ],
+    'Tons neutros: bege, areia, cáqui, café, nude' => [
+      ['Bege', '#D2B48C'], ['Areia', '#C2B280'], ['Cáqui', '#B3A86A'],
+      ['Café', '#6F4E37'], ['Nude', '#E8C7B7'],
+    ],
+    'Tons neutros: creme, taupe, cinza, avelã, nude' => [
+      ['Creme', '#F5F0E1'], ['Cinza', '#9CA3AF'],
+      ['Avelã', '#B4835B'], ['Nude', '#E8C7B7'],
+    ],
+    'Tons neutros: areia, caramelo, cáqui, marrom, nude' => [
+      ['Areia', '#C2B280'], ['Caramelo', '#A67C52'], ['Cáqui', '#B3A86A'],
+      ['Marrom', '#5C4033'], ['Nude', '#E8C7B7'],
+    ],
+  ];
+  $paletaTraje = $paletasTraje[$traje] ?? [
+    ['Bege', '#D2B48C'], ['Creme', '#F5F0E1'],
+    ['Cinza', '#9CA3AF'], ['Caramelo', '#A67C52'], ['Nude', '#E8C7B7'],
+  ];
   ?>
 
   <!-- Header / Navigation -->
@@ -59,6 +84,7 @@
           <li><a href="#hero" class="nav-link active"><i class="fa-solid fa-house"></i> Início</a></li>
           <li><a href="#fraldas" class="nav-link"><i class="fa-solid fa-baby"></i> Fraldas</a></li>
           <li><a href="#confirmacao" class="nav-link"><i class="fa-solid fa-circle-check"></i> RSVP</a></li>
+          <li><a href="#traje" class="nav-link"><i class="fa-solid fa-shirt"></i> Traje</a></li>
           <li><a href="#local" class="nav-link"><i class="fa-solid fa-location-dot"></i> Local</a></li>
         </ul>
       </nav>
@@ -371,6 +397,34 @@
     </div>
   </div>
 
+  <!-- Traje Section -->
+  <section id="traje" class="section traje-section">
+    <div class="container">
+      <div class="section-header" data-reveal="fade-up">
+        <span class="section-tag"><i class="fa-solid fa-shirt"></i> Dress Code</span>
+        <h2 class="section-title">Traje do Evento</h2>
+        <p class="section-subtitle">Vista-se com muito carinho nos tons neutros! Pedimos que os convidados escolham peças nas cores abaixo, sem branco.</p>
+        <div class="title-divider"><span></span><i class="fa-solid fa-palette"></i><span></span></div>
+      </div>
+
+      <div class="traje-card" data-reveal="fade-up">
+        <div class="traje-head">
+          <i class="fa-solid fa-shirt traje-head-icon"></i>
+          <span><?php echo htmlspecialchars($traje); ?></span>
+        </div>
+
+        <div class="traje-paleta">
+          <?php foreach ($paletaTraje as $tom): ?>
+            <div class="traje-swatch">
+              <span class="swatch-circle" style="background: <?php echo $tom[1]; ?>;"></span>
+              <span class="swatch-name"><?php echo htmlspecialchars($tom[0]); ?></span>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Local & Endereço Section -->
   <section id="local" class="section local-section alt-bg">
     <div class="container">
@@ -385,7 +439,6 @@
           <div class="venue-badge">
             <i class="fa-solid fa-champagne-glasses"></i> Endereço do Evento
           </div>
-          <h3 class="venue-name"><?php echo htmlspecialchars($local); ?></h3>
           
           <ul class="venue-details-list">
             <li>
@@ -409,15 +462,6 @@
                 <p><?php echo htmlspecialchars($dataCompleta); ?> às <?php echo htmlspecialchars($horario); ?>h</p>
               </div>
             </li>
-            <?php if (!empty($config['traje'])): ?>
-            <li>
-              <i class="fa-solid fa-shirt list-icon"></i>
-              <div>
-                <strong>Traje:</strong>
-                <p><?php echo htmlspecialchars($config['traje']); ?></p>
-              </div>
-            </li>
-            <?php endif; ?>
 
           <div class="local-actions">
             <a href="https://maps.google.com/?q=<?php echo $enderecoUrl; ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
@@ -464,6 +508,7 @@
         <a href="#hero">Início</a>
         <a href="#fraldas">Fraldas</a>
         <a href="#confirmacao">RSVP</a>
+        <a href="#traje">Traje</a>
         <a href="#local">Local</a>
       </div>
 
