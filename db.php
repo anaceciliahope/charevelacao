@@ -36,8 +36,21 @@ function criar_tabelas(): void
         horario VARCHAR(50) NOT NULL DEFAULT '12:00',
         local VARCHAR(255) NOT NULL DEFAULT '',
         endereco VARCHAR(255) NOT NULL DEFAULT '',
+        traje VARCHAR(255) NOT NULL DEFAULT '',
         mensagem TEXT
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    // Migração: adiciona a coluna 'traje' caso já não exista
+    $cols = $pdo->query('SHOW COLUMNS FROM config')->fetchAll(PDO::FETCH_COLUMN);
+    if (!in_array('traje', $cols, true)) {
+        $pdo->exec("ALTER TABLE config ADD COLUMN traje VARCHAR(255) NOT NULL DEFAULT ''");
+    }
+
+    // Preenche o traje padrão se a config existente ainda estiver sem traje
+    $trajeAtual = $pdo->query('SELECT traje FROM config WHERE id=1')->fetchColumn();
+    if ($trajeAtual === null || $trajeAtual === '') {
+        $pdo->exec("UPDATE config SET traje='Tons neutros: bege, creme, taupe, cinza, caramelo, nude' WHERE id=1");
+    }
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS confirmacoes (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -52,13 +65,14 @@ function criar_tabelas(): void
     // Semeia a configuração padrão quando a tabela está vazia
     $count = (int)$pdo->query('SELECT COUNT(*) FROM config')->fetchColumn();
     if ($count === 0) {
-        $stmt = $pdo->prepare('INSERT INTO config (nome_evento, data_evento, horario, local, endereco, mensagem) VALUES (?, ?, ?, ?, ?, ?)');
+        $stmt = $pdo->prepare('INSERT INTO config (nome_evento, data_evento, horario, local, endereco, traje, mensagem) VALUES (?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([
             'Chá de Bebê & Revelação',
             '2026-09-27',
             '12:00',
             'Casa do Casal',
             'Rua Retiro das Aves, nº 90A - Capim Rasteiro, Contagem - MG',
+            'Tons neutros: bege, creme, taupe, cinza, caramelo, nude',
             'Nosso maior presente está a caminho! E queremos dividir esse momento tão especial com as pessoas que amamos.'
         ]);
     }
@@ -75,6 +89,7 @@ function obter_config(): array
             'horario'     => '12:00',
             'local'       => 'Casa do Casal',
             'endereco'    => 'Rua Retiro das Aves, nº 90A - Capim Rasteiro, Contagem - MG',
+            'traje'       => 'Roupas neutras',
             'mensagem'    => 'Nosso maior presente está a caminho! E queremos dividir esse momento tão especial com as pessoas que amamos.'
         ];
     }

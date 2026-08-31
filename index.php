@@ -409,6 +409,15 @@
                 <p><?php echo htmlspecialchars($dataCompleta); ?> às <?php echo htmlspecialchars($horario); ?>h</p>
               </div>
             </li>
+            <?php if (!empty($config['traje'])): ?>
+            <li>
+              <i class="fa-solid fa-shirt list-icon"></i>
+              <div>
+                <strong>Traje:</strong>
+                <p><?php echo htmlspecialchars($config['traje']); ?></p>
+              </div>
+            </li>
+            <?php endif; ?>
 
           <div class="local-actions">
             <a href="https://maps.google.com/?q=<?php echo $enderecoUrl; ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary">

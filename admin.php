@@ -18,13 +18,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($acao === 'logout') {
         unset($_SESSION['admin_logado']);
     } elseif ($acao === 'salvar_config' && !empty($_SESSION['admin_logado'])) {
-        $stmt = db()->prepare('UPDATE config SET nome_evento=?, data_evento=?, horario=?, local=?, endereco=?, mensagem=? WHERE id=1');
+        $stmt = db()->prepare('UPDATE config SET nome_evento=?, data_evento=?, horario=?, local=?, endereco=?, traje=?, mensagem=? WHERE id=1');
         $stmt->execute([
             trim($_POST['nome_evento'] ?? ''),
             trim($_POST['data_evento'] ?? ''),
             trim($_POST['horario'] ?? ''),
             trim($_POST['local'] ?? ''),
             trim($_POST['endereco'] ?? ''),
+            trim($_POST['traje'] ?? ''),
             trim($_POST['mensagem'] ?? '')
         ]);
         $mensagem = 'Configuração salva com sucesso!';
@@ -138,6 +139,17 @@ foreach ($confirmacoes as $c) {
         <div>
           <label>Local (nome)</label>
           <input type="text" name="local" value="<?php echo htmlspecialchars($config['local']); ?>" required>
+        </div>
+        <div>
+          <label>Traje</label>
+          <select name="traje" style="width:100%; padding:.6rem .8rem; border:1px solid #d4d4dd; border-radius:8px; font-size:.95rem;">
+            <option value="">— Selecione —</option>
+            <option value="Tons neutros: bege, creme, taupe, cinza, caramelo, nude"<?php echo $config['traje'] === 'Tons neutros: bege, creme, taupe, cinza, caramelo, nude' ? ' selected' : ''; ?>>Tons neutros: bege, creme, taupe, cinza, caramelo, nude</option>
+            <option value="Tons neutros: bege, areia, cáqui, café, nude"<?php echo $config['traje'] === 'Tons neutros: bege, areia, cáqui, café, nude' ? ' selected' : ''; ?>>Tons neutros: bege, areia, cáqui, café, nude</option>
+            <option value="Tons neutros: creme, taupe, cinza, avelã, nude"<?php echo $config['traje'] === 'Tons neutros: creme, taupe, cinza, avelã, nude' ? ' selected' : ''; ?>>Tons neutros: creme, taupe, cinza, avelã, nude</option>
+            <option value="Tons neutros: areia, caramelo, cáqui, marrom, nude"<?php echo $config['traje'] === 'Tons neutros: areia, caramelo, cáqui, marrom, nude' ? ' selected' : ''; ?>>Tons neutros: areia, caramelo, cáqui, marrom, nude</option>
+            <option value="Roupas neutras"<?php echo $config['traje'] === 'Roupas neutras' ? ' selected' : ''; ?>>Roupas neutras</option>
+          </select>
         </div>
       </div>
       <label>Endereço</label>
